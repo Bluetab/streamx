@@ -17,7 +17,6 @@ package io.confluent.connect.hdfs;
 
 import com.qubole.streamx.s3.S3Storage;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
@@ -33,6 +32,7 @@ import java.util.Map;
 import io.confluent.connect.hdfs.partitioner.DailyPartitioner;
 import io.confluent.connect.hdfs.partitioner.FieldPartitioner;
 import io.confluent.connect.hdfs.partitioner.HourlyPartitioner;
+import io.confluent.connect.hdfs.partitioner.DefaultPartitioner;
 import io.confluent.connect.hdfs.partitioner.Partitioner;
 import io.confluent.connect.hdfs.partitioner.TimeBasedPartitioner;
 
@@ -327,11 +327,11 @@ public class HdfsSinkConnectorConfig extends AbstractConfig {
   }
 
   private static class SchemaCompatibilityRecommender extends BooleanParentRecommender {
-    
+
     public SchemaCompatibilityRecommender() {
       super(HIVE_INTEGRATION_CONFIG);
     }
-      
+
     @Override
     public List<Object> validValues(String name, Map<String, Object> connectorConfigs) {
       boolean hiveIntegration = (Boolean) connectorConfigs.get(parentConfigName);
@@ -347,15 +347,15 @@ public class HdfsSinkConnectorConfig extends AbstractConfig {
       return true;
     }
   }
-  
+
   private static class BooleanParentRecommender implements ConfigDef.Recommender {
-    
+
     protected String parentConfigName;
-    
+
     public BooleanParentRecommender(String parentConfigName) {
       this.parentConfigName = parentConfigName;
     }
-    
+
     @Override
     public List<Object> validValues(String name, Map<String, Object> connectorConfigs) {
       return new LinkedList<>();
@@ -404,7 +404,7 @@ public class HdfsSinkConnectorConfig extends AbstractConfig {
   private static boolean classNameEquals(String className, Class<?> clazz) {
     return className.equals(clazz.getSimpleName()) || className.equals(clazz.getCanonicalName());
   }
-    
+
   public static ConfigDef getConfig() {
     return config;
   }
