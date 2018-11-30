@@ -88,7 +88,7 @@ curl -i -X POST \
 "s3.url":"s3://streamx/demo",
 "hadoop.conf.dir":"/Users/pseluka/src/streamx/hadoop-conf"
 }}' \
- 'http://localhost:8083/connectors'
+ 'http://localhost:8084/connectors'
 ```
 
 - Uses *S3SinkConnector*
@@ -107,7 +107,7 @@ To delete a Connect job,
 curl -i -X DELETE \
    -H "Accept:application/json" \
    -H "Content-Type:application/json" \
- 'http://localhost:8083/connectors/clickstream'
+ 'http://localhost:8084/connectors/clickstream'
 ```
 
 To list all Connect jobs,
@@ -115,7 +115,7 @@ To list all Connect jobs,
 curl -i -X GET \
    -H "Accept:application/json" \
    -H "Content-Type:application/json" \
- 'http://localhost:8083/connectors'
+ 'http://localhost:8084/connectors'
 ```
 
 **Restarting Connect jobs** : All Connect jobs are stored in a Kafka Queue. So, restarting the Kafka Connect will restart all the connectors submitted to it.
@@ -129,11 +129,11 @@ docker build -t qubole/streamx .
 When you run your container, you can override all the properties in connect-distributed.properties file with env vars. env_vars will be of format CONNECT_BOOTSTRAP_SERVERS corresponding to bootstrap.servers. The convention is to prefix env vars with CONNECT.
 Example of how to run your container,
 ```
-docker run -d -p 8083:8083 --env CONNECT_BOOTSTRAP_SERVERS=public_dns:9092 --env CONNECT_AWS_ACCESS_KEY=youracesskey --env CONNECT_AWS_SECRET_KEY=yoursecretkey qubole/streamx
+docker run -d -p 8084:8084 --env CONNECT_BOOTSTRAP_SERVERS=public_dns:9092 --env CONNECT_AWS_ACCESS_KEY=youracesskey --env CONNECT_AWS_SECRET_KEY=yoursecretkey qubole/streamx
 ```
 You can also use Avro/Parquet format. Example:
 ```
-docker run -d -p 8083:8083 --env CONNECT_BOOTSTRAP_SERVERS=public_dns:9092 --env CONNECT_AWS_ACCESS_KEY=youracesskey --env CONNECT_AWS_SECRET_KEY=yoursecretkey  --env CONNECT_KEY_CONVERTER=io.confluent.connect.avro.AvroConverter --env CONNECT_VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter --env CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://your.schema.registry.com:8081 --env CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://your.schema.registry.com:8081 qubole/streamx
+docker run -d -p 8084:8084 --env CONNECT_BOOTSTRAP_SERVERS=public_dns:9092 --env CONNECT_AWS_ACCESS_KEY=youracesskey --env CONNECT_AWS_SECRET_KEY=yoursecretkey  --env CONNECT_KEY_CONVERTER=io.confluent.connect.avro.AvroConverter --env CONNECT_VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter --env CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://your.schema.registry.com:8081 --env CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://your.schema.registry.com:8081 qubole/streamx
 
 ```
 

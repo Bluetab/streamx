@@ -11,7 +11,7 @@ ADD config $STREAMX_DIR/config
 ADD docker/entry $STREAMX_DIR/entry
 ADD docker/utils.py $STREAMX_DIR/utils.py
 
-EXPOSE 8083
+EXPOSE 8084
 
 ENV CLASSPATH=$CLASSPATH:$STREAMX_DIR/*
 
