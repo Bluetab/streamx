@@ -16,6 +16,7 @@ package io.confluent.connect.hdfs.partitioner;
 
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
+import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.sink.SinkRecord;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ import java.util.Map;
 
 public class DefaultPartitioner implements Partitioner {
 
-  private static final String partitionField = "partition";
+  private static final String partitionField = "";
   private final List<FieldSchema> partitionFields =  new ArrayList<>();;
 
   @Override
@@ -34,7 +35,8 @@ public class DefaultPartitioner implements Partitioner {
 
   @Override
   public String encodePartition(SinkRecord sinkRecord) {
-    return partitionField + "=" + String.valueOf(sinkRecord.kafkaPartition());
+    Schema valueSchema = sinkRecord.valueSchema();
+    return String.valueOf(valueSchema.version());
   }
 
   @Override

@@ -14,40 +14,7 @@
 
 package io.confluent.connect.hdfs;
 
-import com.qubole.streamx.s3.S3SinkConnectorConstants;
 import com.qubole.streamx.s3.wal.DBWAL;
-import com.qubole.streamx.s3.wal.DBWAL;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.Path;
-import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.config.ConfigException;
-import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.errors.ConnectException;
-import org.apache.kafka.connect.errors.IllegalWorkerStateException;
-import org.apache.kafka.connect.errors.SchemaProjectorException;
-import org.apache.kafka.connect.sink.SinkRecord;
-import org.apache.kafka.connect.sink.SinkTaskContext;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-
 import io.confluent.connect.avro.AvroData;
 import io.confluent.connect.hdfs.errors.HiveMetaStoreException;
 import io.confluent.connect.hdfs.filter.CommittedFileFilter;
@@ -59,6 +26,27 @@ import io.confluent.connect.hdfs.schema.Compatibility;
 import io.confluent.connect.hdfs.schema.SchemaUtils;
 import io.confluent.connect.hdfs.storage.Storage;
 import io.confluent.connect.hdfs.wal.WAL;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.Path;
+import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.errors.ConnectException;
+import org.apache.kafka.connect.errors.IllegalWorkerStateException;
+import org.apache.kafka.connect.errors.SchemaProjectorException;
+import org.apache.kafka.connect.sink.SinkRecord;
+import org.apache.kafka.connect.sink.SinkTaskContext;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 public class TopicPartitionWriter {
   private static final Logger log = LoggerFactory.getLogger(TopicPartitionWriter.class);
@@ -92,6 +80,7 @@ public class TopicPartitionWriter {
   private long failureTime;
   private Compatibility compatibility;
   private Schema currentSchema;
+  private Boolean isSnapshot;
   private HdfsSinkConnectorConfig connectorConfig;
   private String extension;
   private final String zeroPadOffsetFormat;
@@ -271,6 +260,7 @@ public class TopicPartitionWriter {
             pause();
             nextState();
           case WRITE_PARTITION_PAUSED:
+
             if (currentSchema == null) {
               if (compatibility != Compatibility.NONE && offset != -1) {
                 String topicDir = FileUtils.topicDirectory(url, topicsDir, tp.topic());
@@ -296,15 +286,30 @@ public class TopicPartitionWriter {
               }
             } else {
               SinkRecord projectedRecord = SchemaUtils.project(record, currentSchema, compatibility);
-              writeRecord(projectedRecord);
-              buffer.poll();
-              if (shouldRotate(now)) {
-                log.info("Starting commit and rotation for topic partition {} with start offsets {}"
-                         + " and end offsets {}", tp, startOffsets, offsets);
-                nextState();
-                // Fall through and try to rotate immediately
+              if (isSnapshot == null) {
+                isSnapshot = isSnapshot(record);
+              }
+              if (isSnapshot!= isSnapshot(record)){
+                if (recordCounter > 0) {
+                  log.info("Snapshot commit and rotation for topic partition {} with start offsets {}"
+                          + " and end offsets {}", tp, startOffsets, offsets);
+                  nextState();
+                } else {
+                  isSnapshot = null;
+                  break;
+                }
+
               } else {
-                break;
+                writeRecord(projectedRecord);
+                buffer.poll();
+                if (shouldRotate(now)) {
+                  log.info("Starting commit and rotation for topic partition {} with start offsets {}"
+                          + " and end offsets {}", tp, startOffsets, offsets);
+                  nextState();
+                  // Fall through and try to rotate immediately
+                } else {
+                  break;
+                }
               }
             }
           case SHOULD_ROTATE:
@@ -583,7 +588,7 @@ public class TopicPartitionWriter {
     String directory = getDirectory(encodedPartition);
     String committedFile = FileUtils.committedFileName(url, topicsDir, directory, tp,
                                                        startOffset, endOffset, extension,
-                                                       zeroPadOffsetFormat);
+                                                       zeroPadOffsetFormat, isSnapshot);
     wal.append(tempFile, committedFile);
     appended.add(tempFile);
   }
@@ -623,9 +628,10 @@ public class TopicPartitionWriter {
     long endOffset = offsets.get(encodedPartiton);
     String tempFile = tempFiles.get(encodedPartiton);
     String directory = getDirectory(encodedPartiton);
+
     String committedFile = FileUtils.committedFileName(url, topicsDir, directory, tp,
                                                        startOffset, endOffset, extension,
-                                                       zeroPadOffsetFormat);
+                                                       zeroPadOffsetFormat,isSnapshot);
 
     String directoryName = FileUtils.directoryName(url, topicsDir, directory);
     if (!storage.exists(directoryName)) {
@@ -677,5 +683,10 @@ public class TopicPartitionWriter {
       }
     });
     hiveUpdateFutures.add(future);
+  }
+
+  private boolean isSnapshot(SinkRecord record){
+    Struct value = ((Struct) record.value());
+    return value.get("snapshot").equals(Boolean.TRUE);
   }
 }

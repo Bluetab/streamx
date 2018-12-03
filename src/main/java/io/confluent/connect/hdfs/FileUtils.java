@@ -40,7 +40,7 @@ public class FileUtils {
     return fileName(url, logsDir, topicPart, "log");
   }
 
-  public static String directoryName(String url, String topicsDir, TopicPartition topicPart) {
+  public static String directoryName(String url, String topicsDir, TopicPartition topicPart, int schemaVersion) {
     String topic = topicPart.topic();
     int partition = topicPart.partition();
     return url + "/" + topicsDir + "/" + topic + "/" + partition;
@@ -83,10 +83,14 @@ public class FileUtils {
 
   public static String committedFileName(String url, String topicsDir, String directory,
                                          TopicPartition topicPart, long startOffset, long endOffset,
-                                         String extension, String zeroPadFormat) {
+                                         String extension, String zeroPadFormat, boolean isSnapshot) {
     String topic = topicPart.topic();
     int partition = topicPart.partition();
     StringBuilder sb = new StringBuilder();
+    if (isSnapshot) {
+      sb.append("snapshot");
+      sb.append(HdfsSinkConnectorConstants.COMMMITTED_FILENAME_SEPARATOR);
+    }
     sb.append(topic);
     sb.append(HdfsSinkConnectorConstants.COMMMITTED_FILENAME_SEPARATOR);
     sb.append(partition);
@@ -96,7 +100,7 @@ public class FileUtils {
     sb.append(String.format(zeroPadFormat, endOffset));
     sb.append(extension);
     String name = sb.toString();
-    return fileName(url, topicsDir, directory, name);
+    return fileName(url, topicsDir, directory , name);
   }
 
   public static String topicDirectory(String url, String topicsDir, String topic) {
