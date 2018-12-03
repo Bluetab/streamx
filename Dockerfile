@@ -1,12 +1,24 @@
-FROM confluentinc/cp-kafka:3.0.0
+# ---- Copy Files/Build ----
+FROM maven:3.6-jdk-8-alpine AS build
 
-MAINTAINER pseluka@qubole.com
+MAINTAINER True-Dat Dev Team
+
+RUN mkdir /build
+WORKDIR /build
+COPY . /build
+
+RUN mvn -DskipTests package
+
+
+# --- Release ----
+FROM confluentinc/cp-kafka:3.0.0
 
 RUN apt-get update && apt-get install -y vim
 
 ENV STREAMX_DIR /usr/local/streamx
 
-ADD target/streamx-0.1.0-SNAPSHOT-development/share/java/streamx $STREAMX_DIR
+COPY --from=build /build/target/streamx-0.1.0-SNAPSHOT-development/share/java/streamx $STREAMX_DIR
+
 ADD config $STREAMX_DIR/config
 ADD docker/entry $STREAMX_DIR/entry
 ADD docker/utils.py $STREAMX_DIR/utils.py
