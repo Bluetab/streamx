@@ -95,6 +95,8 @@ public class TopicPartitionWriter {
   private Queue<Future<Void>> hiveUpdateFutures;
   private Set<String> hivePartitions;
 
+  private final static String SNAPSHOT = "CDC_Attribute_snapshot";
+
   public TopicPartitionWriter(
       TopicPartition tp,
       Storage storage,
@@ -687,6 +689,6 @@ public class TopicPartitionWriter {
 
   private boolean isSnapshot(SinkRecord record){
     Struct value = ((Struct) record.value());
-    return value.get("snapshot").equals(Boolean.TRUE);
+    return value.get(SNAPSHOT).equals(Boolean.TRUE);
   }
 }
