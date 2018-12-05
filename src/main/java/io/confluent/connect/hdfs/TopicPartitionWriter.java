@@ -689,6 +689,6 @@ public class TopicPartitionWriter {
 
   private boolean isSnapshot(SinkRecord record){
     Struct value = ((Struct) record.value());
-    return value.get(SNAPSHOT).equals(Boolean.TRUE);
+    return Boolean.TRUE.equals(value.get(SNAPSHOT));
   }
 }
