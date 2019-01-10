@@ -70,7 +70,7 @@ public class DBWAL implements  WAL {
 
       cpds = ConnectionPool.getDatasource(connectionURL, user, password);
 
-      String sql = String.format("create table %s (id INT AUTO_INCREMENT, tempFiles VARCHAR(500), committedFiles VARCHAR(500), primary key (id))", tableName);
+      String sql = String.format("create table `%s` (id INT AUTO_INCREMENT, tempFiles VARCHAR(500), committedFiles VARCHAR(500), primary key (id))", tableName);
       createIfNotExists(tableName, sql);
 
       sql = String.format("CREATE TABLE `%s` (\n" +
@@ -181,7 +181,7 @@ public class DBWAL implements  WAL {
           Statement statement = connection.createStatement();
           statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
-          String sql = String.format("insert into %s (tempFiles,committedFiles) values ('%s','%s')", tableName, tempFilesCommaSeparated, committedFilesCommaSeparated);
+          String sql = String.format("insert into `%s` (tempFiles,committedFiles) values ('%s','%s')", tableName, tempFilesCommaSeparated, committedFilesCommaSeparated);
           log.info("committing " + sql);
           statement.executeUpdate(sql);
           connection.commit();
@@ -207,7 +207,7 @@ public class DBWAL implements  WAL {
         Statement statement = connection.createStatement();
         statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
-        String sql = String.format("select * from %s order by id desc limit 1", tableName);
+        String sql = String.format("select * from `%s` order by id desc limit 1", tableName);
         log.info("Reading wal " + sql);
         ResultSet rs = statement.executeQuery(sql);
 
@@ -242,11 +242,11 @@ public class DBWAL implements  WAL {
 
         Statement statement = connection.createStatement();
         statement.setQueryTimeout(30);  // set timeout to 30 sec.
-        String sql = String.format("select * from %s order by id desc limit 1", tableName);
+        String sql = String.format("select * from `%s` order by id desc limit 1", tableName);
         ResultSet rs = statement.executeQuery(sql);
         if(rs.next()) {
           String id = rs.getString("id");
-          sql = String.format("delete from %s where id < %s", tableName, id);
+          sql = String.format("delete from `%s` where id < %s", tableName, id);
           log.info("truncating table " + sql);
           statement.executeUpdate(sql);
           connection.commit();
@@ -274,7 +274,7 @@ public class DBWAL implements  WAL {
       connection.setAutoCommit(false);
       Statement statement = connection.createStatement();
       statement.setQueryTimeout(30);  // set timeout to 30 sec.
-      String sql = String.format("select * from %s order by id desc limit 1", tableName);
+      String sql = String.format("select * from `%s` order by id desc limit 1", tableName);
       rs = statement.executeQuery(sql);
       rs.next();
       String committedFiles[] = rs.getString("committedFiles").split(",");
