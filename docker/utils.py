@@ -3,16 +3,18 @@ import sys
 def print_help():
   print """ The following properties must be configured using env variables
   CONNECT_BOOTSTRAP_SERVERS
+  CONNECT_CLUSTER_ON_ROLES
   CONNECT_AWS_ACCESS_KEY
   CONNECT_AWS_SECRET_KEY
-  Cmd : docker run -d --env CONNECT_BOOTSTRAP_SERVERS=public_dns:9092 --env CONNECT_AWS_ACCESS_KEY=xxxxx --env CONNECT_AWS_SECRET_KEY=yyyy --env CONNECT_CLUSTER_ON_ROLES=True/False qubole/streamx"""
+  Cmd : docker run -d --env CONNECT_BOOTSTRAP_SERVERS=public_dns:9092 --env CONNECT_AWS_ACCESS_KEY=xxxxx --env CONNECT_AWS_SECRET_KEY=yyyy --env CONNECT_CLUSTER_ON_ROLES=False qubole/streamx
+  Cmd : docker run -d --env CONNECT_BOOTSTRAP_SERVERS=public_dns:9092 --env CONNECT_CLUSTER_ON_ROLES=True qubole/streamx"""
 
 def check_for_required_configs(confs):
   if len(confs) == 0:
     print_help()
     sys.exit(1)
 
-  required_configs = ["CONNECT_BOOTSTRAP_SERVERS", "CONNECT_AWS_ACCESS_KEY", "CONNECT_AWS_SECRET_KEY", "CONNECT_CLUSTER_ON_ROLES"]
+  required_configs = ["CONNECT_BOOTSTRAP_SERVERS", "CONNECT_CLUSTER_ON_ROLES"]
   for x in required_configs:
     if x not in confs.keys():
        print x +" is required"
@@ -31,13 +33,13 @@ def override_connect_configs(confs):
   with open(connect_file) as f:
     connect_conf = f.read().splitlines()
 
-  # env_vars will be of format CONNECT_BOOTSTRAP_SERVERS corresponding to bootstrap.servers. 
+  # env_vars will be of format CONNECT_BOOTSTRAP_SERVERS corresponding to bootstrap.servers.
   # This code converts the env_vars into later format
   for k,v in confs.items():
     #remove CONNECT_ prefix
     k = k[8:]
     key = k.lower().replace("_",".") + "="
-      
+
     # override connect_conf with env_vars
     for i in range(0, len(connect_conf)):
       if connect_conf[i].startswith(key):
@@ -78,4 +80,3 @@ def main():
 
 if __name__ == "__main__":
   main()
-
