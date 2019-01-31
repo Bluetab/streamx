@@ -16,16 +16,20 @@ package io.confluent.connect.hdfs.partitioner;
 
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoFactory;
+import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.sink.SinkRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultPartitioner implements Partitioner {
+public class SchemaPartitioner implements Partitioner {
+  private static final Logger log = LoggerFactory.getLogger(SchemaPartitioner.class);
+  private static String partitionField = "Attribute_version";
+  private List<FieldSchema> partitionFields = new ArrayList<>();
 
-  private static final String partitionField = "partition";
-  private final List<FieldSchema> partitionFields =  new ArrayList<>();;
 
   @Override
   public void configure(Map<String, Object> config) {
@@ -34,7 +38,8 @@ public class DefaultPartitioner implements Partitioner {
 
   @Override
   public String encodePartition(SinkRecord sinkRecord) {
-    return partitionField + "=" + String.valueOf(sinkRecord.kafkaPartition());
+    Schema valueSchema = sinkRecord.valueSchema();
+    return partitionField + "=" + String.valueOf(valueSchema.version());
   }
 
   @Override
@@ -46,4 +51,6 @@ public class DefaultPartitioner implements Partitioner {
   public List<FieldSchema> partitionFields() {
     return partitionFields;
   }
+
+
 }

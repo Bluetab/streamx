@@ -14,6 +14,7 @@
 
 package io.confluent.connect.hdfs;
 
+import com.qubole.streamx.s3.S3SinkConnectorConfig;
 import com.qubole.streamx.s3.wal.DBWAL;
 import io.confluent.connect.avro.AvroData;
 import io.confluent.connect.hdfs.errors.HiveMetaStoreException;
@@ -80,7 +81,7 @@ public class TopicPartitionWriter {
   private long failureTime;
   private Compatibility compatibility;
   private Schema currentSchema;
-  private Boolean isSnapshot;
+  private String rotateFieldValue;
   private HdfsSinkConnectorConfig connectorConfig;
   private String extension;
   private final String zeroPadOffsetFormat;
@@ -94,6 +95,7 @@ public class TopicPartitionWriter {
   private ExecutorService executorService;
   private Queue<Future<Void>> hiveUpdateFutures;
   private Set<String> hivePartitions;
+  private String rotateField;
 
   private final static String SNAPSHOT = "CDC_Attribute_snapshot";
 
@@ -132,6 +134,7 @@ public class TopicPartitionWriter {
     this.conf = storage.conf();
     this.schemaFileReader = schemaFileReader;
 
+    rotateField = connectorConfig.getString(S3SinkConnectorConfig.ROTATE_FIELD_CONFIG);
     topicsDir = connectorConfig.getString(HdfsSinkConnectorConfig.TOPICS_DIR_CONFIG);
     flushSize = connectorConfig.getInt(HdfsSinkConnectorConfig.FLUSH_SIZE_CONFIG);
     rotateIntervalMs = connectorConfig.getLong(HdfsSinkConnectorConfig.ROTATE_INTERVAL_MS_CONFIG);
@@ -288,19 +291,21 @@ public class TopicPartitionWriter {
               }
             } else {
               SinkRecord projectedRecord = SchemaUtils.project(record, currentSchema, compatibility);
-              if (isSnapshot == null) {
-                isSnapshot = isSnapshot(record);
+
+              if (rotateField != "" ) {
+                if (rotateFieldValue == null) {
+                  rotateFieldValue = readRotateFieldValue(record);
+                }
               }
-              if (isSnapshot!= isSnapshot(record)){
+              if (rotateField != "" && rotateFieldValue != readRotateFieldValue(record)) {
                 if (recordCounter > 0) {
-                  log.info("Snapshot commit and rotation for topic partition {} with start offsets {}"
+                  log.info("Rotate field commit and rotation for topic partition {} with start offsets {}"
                           + " and end offsets {}", tp, startOffsets, offsets);
                   nextState();
                 } else {
-                  isSnapshot = null;
+                  rotateFieldValue = null;
                   break;
                 }
-
               } else {
                 writeRecord(projectedRecord);
                 buffer.poll();
@@ -590,7 +595,7 @@ public class TopicPartitionWriter {
     String directory = getDirectory(encodedPartition);
     String committedFile = FileUtils.committedFileName(url, topicsDir, directory, tp,
                                                        startOffset, endOffset, extension,
-                                                       zeroPadOffsetFormat, isSnapshot);
+                                                       zeroPadOffsetFormat, fileNameFieldValue());
     wal.append(tempFile, committedFile);
     appended.add(tempFile);
   }
@@ -631,9 +636,11 @@ public class TopicPartitionWriter {
     String tempFile = tempFiles.get(encodedPartiton);
     String directory = getDirectory(encodedPartiton);
 
+
+
     String committedFile = FileUtils.committedFileName(url, topicsDir, directory, tp,
                                                        startOffset, endOffset, extension,
-                                                       zeroPadOffsetFormat,isSnapshot);
+                                                       zeroPadOffsetFormat,fileNameFieldValue());
 
     String directoryName = FileUtils.directoryName(url, topicsDir, directory);
     if (!storage.exists(directoryName)) {
@@ -687,8 +694,27 @@ public class TopicPartitionWriter {
     hiveUpdateFutures.add(future);
   }
 
-  private boolean isSnapshot(SinkRecord record){
+  private String readRotateFieldValue(SinkRecord record){
     Struct value = ((Struct) record.value());
-    return Boolean.TRUE.equals(value.get(SNAPSHOT));
+    Object fieldValue = value.get(rotateField);
+    if (fieldValue == null) {
+      return null;
+    } else {
+      return String.valueOf(fieldValue);
+    }
+  }
+
+  private String fileNameFieldValue() {
+    String fileNameFieldValue = null;
+    if (rotateFieldValue!=null){
+      if (SNAPSHOT.equals(rotateField) ) {
+        if ("true".equals(rotateFieldValue)  ){
+          fileNameFieldValue = "snapshot";
+        }
+      } else {
+        fileNameFieldValue = rotateFieldValue;
+      }
+    }
+    return fileNameFieldValue;
   }
 }

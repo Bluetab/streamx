@@ -15,8 +15,7 @@
 package io.confluent.connect.hdfs;
 
 
-import com.qubole.streamx.s3.S3Storage;
-import org.apache.hadoop.conf.Configuration;
+import io.confluent.connect.hdfs.partitioner.*;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigDef.Importance;
@@ -28,13 +27,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import io.confluent.connect.hdfs.partitioner.DailyPartitioner;
-import io.confluent.connect.hdfs.partitioner.FieldPartitioner;
-import io.confluent.connect.hdfs.partitioner.HourlyPartitioner;
-import io.confluent.connect.hdfs.partitioner.DefaultPartitioner;
-import io.confluent.connect.hdfs.partitioner.Partitioner;
-import io.confluent.connect.hdfs.partitioner.TimeBasedPartitioner;
 
 public class HdfsSinkConnectorConfig extends AbstractConfig {
 
@@ -381,6 +373,8 @@ public class HdfsSinkConnectorConfig extends AbstractConfig {
         @SuppressWarnings("unchecked")
         Class<? extends Partitioner> partitioner = (Class<? extends Partitioner>) Class.forName(partitionerName);
         if (classNameEquals(partitionerName, DefaultPartitioner.class)) {
+          return false;
+        } else if (classNameEquals(partitionerName, SchemaPartitioner.class)) {
           return false;
         } else if (FieldPartitioner.class.isAssignableFrom(partitioner)) {
           // subclass of FieldPartitioner
