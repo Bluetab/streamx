@@ -64,6 +64,7 @@ public class S3SinkConnectorConfig extends HdfsSinkConnectorConfig {
   public static final String ROTATE_FIELD_DEFAULT = "";
   private static final String ROTATE_FIELD_DISPLAY = "Rotate Field";
 
+
   static {
     config.define(S3_URL_CONFIG, ConfigDef.Type.STRING, ConfigDef.Importance.HIGH, S3_URL_DOC, S3_GROUP, 1, ConfigDef.Width.MEDIUM, S3_URL_DISPLAY);
     config.define(WAL_CLASS_CONFIG, ConfigDef.Type.STRING, WAL_CLASS_DEFAULT, ConfigDef.Importance.LOW, WAL_CLASS_DOC, WAL_GROUP, 1, ConfigDef.Width.MEDIUM, WAL_CLASS_DISPLAY);

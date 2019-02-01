@@ -193,6 +193,13 @@ public class HdfsSinkConnectorConfig extends AbstractConfig {
   public static final long PARTITION_DURATION_MS_DEFAULT = -1L;
   private static final String PARTITION_DURATION_MS_DISPLAY = "Partition Duration (ms)";
 
+  public static final String PARTITIONER_LIST_CONFIG = "partitioner.list";
+  private static final String PARTITIONER_LIST_DOC =
+          "List of partitioners";
+  public static final String PARTITIONER_LIST_DEFAULT = "";
+  private static final String PARTITIONER_LIST_DISPLAY = "Partitioner List";
+
+
   public static final String PATH_FORMAT_CONFIG = "path.format";
   private static final String PATH_FORMAT_DOC =
       "This configuration is used to set the format of the data directories when partitioning with "
@@ -302,7 +309,7 @@ public class HdfsSinkConnectorConfig extends AbstractConfig {
         .define(RETRY_BACKOFF_CONFIG, Type.LONG, RETRY_BACKOFF_DEFAULT, Importance.LOW, RETRY_BACKOFF_DOC, CONNECTOR_GROUP, 4, Width.SHORT, RETRY_BACKOFF_DISPLAY)
         .define(SHUTDOWN_TIMEOUT_CONFIG, Type.LONG, SHUTDOWN_TIMEOUT_DEFAULT, Importance.MEDIUM, SHUTDOWN_TIMEOUT_DOC, CONNECTOR_GROUP, 5, Width.SHORT, SHUTDOWN_TIMEOUT_DISPLAY)
         .define(PARTITIONER_CLASS_CONFIG, Type.STRING, PARTITIONER_CLASS_DEFAULT, Importance.HIGH, PARTITIONER_CLASS_DOC, CONNECTOR_GROUP, 6, Width.LONG, PARTITIONER_CLASS_DISPLAY,
-                Arrays.asList(PARTITION_FIELD_NAME_CONFIG, PARTITION_DURATION_MS_CONFIG, PATH_FORMAT_CONFIG, LOCALE_CONFIG, TIMEZONE_CONFIG))
+                Arrays.asList(PARTITIONER_LIST_CONFIG,PARTITION_FIELD_NAME_CONFIG, PARTITION_DURATION_MS_CONFIG, PATH_FORMAT_CONFIG, LOCALE_CONFIG, TIMEZONE_CONFIG))
         .define(PARTITION_FIELD_NAME_CONFIG, Type.STRING, PARTITION_FIELD_NAME_DEFAULT, Importance.MEDIUM, PARTITION_FIELD_NAME_DOC, CONNECTOR_GROUP, 7, Width.MEDIUM,
                 PARTITION_FIELD_NAME_DISPLAY, partitionerClassDependentsRecommender)
         .define(PARTITION_DURATION_MS_CONFIG, Type.LONG, PARTITION_DURATION_MS_DEFAULT, Importance.MEDIUM, PARTITION_DURATION_MS_DOC, CONNECTOR_GROUP, 8, Width.SHORT,
@@ -312,7 +319,9 @@ public class HdfsSinkConnectorConfig extends AbstractConfig {
         .define(LOCALE_CONFIG, Type.STRING, LOCALE_DEFAULT, Importance.MEDIUM, LOCALE_DOC, CONNECTOR_GROUP, 10, Width.MEDIUM, LOCALE_DISPLAY, partitionerClassDependentsRecommender)
         .define(TIMEZONE_CONFIG, Type.STRING, TIMEZONE_DEFAULT, Importance.MEDIUM, TIMEZONE_DOC, CONNECTOR_GROUP, 11, Width.MEDIUM, TIMEZONE_DISPLAY, partitionerClassDependentsRecommender)
         .define(FILENAME_OFFSET_ZERO_PAD_WIDTH_CONFIG, Type.INT, FILENAME_OFFSET_ZERO_PAD_WIDTH_DEFAULT, ConfigDef.Range.atLeast(0), Importance.LOW, FILENAME_OFFSET_ZERO_PAD_WIDTH_DOC,
-                CONNECTOR_GROUP, 12, Width.SHORT, FILENAME_OFFSET_ZERO_PAD_WIDTH_DISPLAY);
+                CONNECTOR_GROUP, 12, Width.SHORT, FILENAME_OFFSET_ZERO_PAD_WIDTH_DISPLAY)
+        .define(PARTITIONER_LIST_CONFIG, Type.STRING, PARTITIONER_LIST_DEFAULT, Importance.MEDIUM, PARTITIONER_LIST_DOC, CONNECTOR_GROUP, 12, Width.MEDIUM,
+                PARTITIONER_LIST_DISPLAY, partitionerClassDependentsRecommender);
 
     // Define Internal configuration group
     config.define(STORAGE_CLASS_CONFIG, Type.STRING, STORAGE_CLASS_DEFAULT, Importance.LOW, STORAGE_CLASS_DOC, INTERNAL_GROUP, 1, Width.MEDIUM, STORAGE_CLASS_DISPLAY);
@@ -369,11 +378,22 @@ public class HdfsSinkConnectorConfig extends AbstractConfig {
     @Override
     public boolean visible(String name, Map<String, Object> connectorConfigs) {
       String partitionerName = (String) connectorConfigs.get(PARTITIONER_CLASS_CONFIG);
+      return visible(name, partitionerName);
+    }
+
+    public boolean visible(String name, String partitionerName) {
       try {
         @SuppressWarnings("unchecked")
         Class<? extends Partitioner> partitioner = (Class<? extends Partitioner>) Class.forName(partitionerName);
         if (classNameEquals(partitionerName, DefaultPartitioner.class)) {
           return false;
+        } else if (classNameEquals(partitionerName, CORPartitioner.class)) {
+          return name.equals(PARTITIONER_LIST_CONFIG) ||
+                  name.equals(PARTITION_FIELD_NAME_CONFIG) ||
+                  name.equals(LOCALE_CONFIG) ||
+                  name.equals(TIMEZONE_CONFIG) ||
+                  name.equals(PARTITION_DURATION_MS_CONFIG) ||
+                  name.equals(PATH_FORMAT_CONFIG);
         } else if (classNameEquals(partitionerName, SchemaPartitioner.class)) {
           return false;
         } else if (FieldPartitioner.class.isAssignableFrom(partitioner)) {
