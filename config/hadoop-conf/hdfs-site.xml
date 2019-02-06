@@ -61,7 +61,7 @@
   </property>
   <property>
     <name>fs.s3.impl</name>
-    <!--value>org.apache.hadoop.fs.s3a.S3AFileSystem</value-->
-    <value>org.apache.hadoop.fs.s3native.NativeS3FileSystem</value>
+    <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+    <!-- <value>org.apache.hadoop.fs.s3native.NativeS3FileSystem</value> -->
   </property>
 </configuration>

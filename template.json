@@ -1,0 +1,22 @@
+{ "Code": { "S": "STREAMX" },
+	"ECR_URL": { "S": "utils/streamx-connect" },
+	"ConfigurationTemplate": {
+	"M": {
+		"name": { "S": "XXX" },
+		"config": {
+				"M": {
+					"name": { "S": "XXX" },
+					"connector.class": { "S": "com.qubole.streamx.s3.S3SinkConnector" },
+					"format.class": { "S": "io.confluent.connect.hdfs.parquet.ParquetFormat" },
+					"tasks.max": { "N": "1" },
+					"topics": { "S": "XXX" },
+					"topics.dir": { "S": "XXX" },
+					"flush.size": { "N": "1" },
+					"s3.url": { "S": "XXX" },
+					"hadoop.conf.dir": { "S": "/usr/local/streamx/config/hadoop-conf" },
+					"flush.size": { "N": "300000" }
+				}
+			}
+    }
+	}
+}
