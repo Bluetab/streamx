@@ -65,7 +65,7 @@
     <!-- <value>org.apache.hadoop.fs.s3native.NativeS3FileSystem</value> -->
   </property>
   <property>
-    <name>org.apache.hadoop.fs.s3a.SharedInstanceProfileCredentialsProvider</name>
-    <description>
+     <name>fs.s3a.aws.credentials.provider</name>
+     <value>org.apache.hadoop.fs.s3a.SharedInstanceProfileCredentialsProvider</value>
   </property>
 </configuration>
