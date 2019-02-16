@@ -23,7 +23,11 @@ import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.metadata.Table;
 import org.apache.kafka.connect.data.Schema;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import io.confluent.connect.avro.AvroData;
 import io.confluent.connect.hdfs.FileUtils;
@@ -69,9 +73,27 @@ public class ParquetHiveUtil extends HiveUtil {
     }
     // convert copycat schema schema to Hive columns
     List<FieldSchema> columns = HiveSchemaConverter.convertSchema(schema);
-    table.setFields(columns);
-    table.setPartCols(partitioner.partitionFields());
+    List<FieldSchema> partitionFields = partitioner.partitionFields();
+    table.setFields(removePartitionFields(columns,partitionFields));
+    table.setPartCols(partitionFields);
     return table;
+  }
+
+  private List<FieldSchema> removePartitionFields(List<FieldSchema> columns,
+                                                  List<FieldSchema> partitionFields) {
+    List<FieldSchema> outFields = new ArrayList<>();
+    Set<String> partitionFieldNames = partitionFields.stream().
+            map((FieldSchema f) -> f.getName().toLowerCase()).
+            collect(Collectors.toSet());
+    for (FieldSchema column: columns){
+      if (!partitionFieldNames.contains(column.getName().toLowerCase())){
+        outFields.add(column);
+      }
+    }
+    for (FieldSchema column: outFields){
+      System.out.println("Field "+ column.getName());
+    }
+    return outFields;
   }
 
   private String getHiveParquetInputFormat() {

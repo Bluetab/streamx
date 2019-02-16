@@ -18,6 +18,7 @@ import io.confluent.connect.avro.AvroData;
 import io.confluent.connect.hdfs.RecordWriter;
 import io.confluent.connect.hdfs.RecordWriterProvider;
 import io.confluent.connect.hdfs.avro.AvroRecordWriterProvider;
+import io.confluent.connect.hdfs.partitioner.Partitioner;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.io.DatumWriter;
@@ -42,7 +43,7 @@ public class SourceRecordWriterProvider implements RecordWriterProvider {
   }
 
   @java.lang.Override
-  public RecordWriter<SinkRecord> getRecordWriter(Configuration conf, final String fileName, SinkRecord record, final AvroData avroData) throws IOException {
+  public RecordWriter<SinkRecord> getRecordWriter(Configuration conf, final String fileName, SinkRecord record, final AvroData avroData, Partitioner partitioner) throws IOException {
     Path path = new Path(fileName);
     final FSDataOutputStream out = path.getFileSystem(conf).create(path);
 

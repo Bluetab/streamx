@@ -477,7 +477,7 @@ public class TopicPartitionWriter {
         return writers.get(encodedPartition);
       }
       String tempFile = getTempFile(encodedPartition);
-      RecordWriter<SinkRecord> writer = writerProvider.getRecordWriter(conf, tempFile, record, avroData);
+      RecordWriter<SinkRecord> writer = writerProvider.getRecordWriter(conf, tempFile, record, avroData,partitioner);
       writers.put(encodedPartition, writer);
       if (hiveIntegration && !hivePartitions.contains(encodedPartition)) {
         addHivePartition(encodedPartition);

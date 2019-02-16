@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class SchemaPartitioner implements Partitioner {
   private static final Logger log = LoggerFactory.getLogger(SchemaPartitioner.class);
-  private static String partitionField = "Attribute_version";
+  private static String partitionField = "attribute_version";
   private List<FieldSchema> partitionFields = new ArrayList<>();
 
 

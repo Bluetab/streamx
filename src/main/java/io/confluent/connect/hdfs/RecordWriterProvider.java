@@ -14,6 +14,7 @@
 
 package io.confluent.connect.hdfs;
 
+import io.confluent.connect.hdfs.partitioner.Partitioner;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.kafka.connect.sink.SinkRecord;
 
@@ -23,5 +24,5 @@ import io.confluent.connect.avro.AvroData;
 
 public interface RecordWriterProvider {
   String getExtension();
-  RecordWriter<SinkRecord> getRecordWriter(Configuration conf, String fileName, SinkRecord record, AvroData avroData) throws IOException;
+  RecordWriter<SinkRecord> getRecordWriter(Configuration conf, String fileName, SinkRecord record, AvroData avroData, Partitioner partitioner) throws IOException;
 }

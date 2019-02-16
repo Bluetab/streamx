@@ -16,6 +16,7 @@
 
 package io.confluent.connect.hdfs.avro;
 
+import io.confluent.connect.hdfs.partitioner.Partitioner;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.io.DatumWriter;
@@ -45,7 +46,7 @@ public class AvroRecordWriterProvider implements RecordWriterProvider {
 
   @Override
   public RecordWriter<SinkRecord> getRecordWriter(Configuration conf, final String fileName,
-                                                        SinkRecord record, final AvroData avroData)
+                                                  SinkRecord record, final AvroData avroData, Partitioner partitioner)
       throws IOException {
     DatumWriter<Object> datumWriter = new GenericDatumWriter<>();
     final DataFileWriter<Object> writer = new DataFileWriter<>(datumWriter);
