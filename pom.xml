@@ -18,12 +18,57 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+    <properties>
+      <VERSION>0.2.0-SNAPSHOT</VERSION>
+      <confluent.version>3.1.2</confluent.version>
+      <kafka.version>0.10.1.1-cp1</kafka.version>
+      <junit.version>4.12</junit.version>
+      <hadoop.version>2.7.2</hadoop.version>
+      <hive.version>1.2.1</hive.version>
+      <avro.version>1.7.7</avro.version>
+      <parquet.version>1.7.0</parquet.version>
+      <commons-io.version>2.4</commons-io.version>
+      <joda.version>1.6.2</joda.version>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <confluent.maven.repo>http://packages.confluent.io/maven/</confluent.maven.repo>
+      <jackson.version>2.6.3</jackson.version>
+    </properties>
+
+    <profiles>
+      <profile>
+          <id>ci</id>
+          <activation>
+              <property>
+                  <name>env.VERSION</name>
+              </property>
+          </activation>
+          <properties>
+              <VERSION>${env.VERSION}</VERSION>
+          </properties>
+      </profile>
+      <profile>
+          <id>standalone</id>
+          <build>
+              <plugins>
+                  <plugin>
+                      <artifactId>maven-assembly-plugin</artifactId>
+                      <configuration>
+                          <descriptors>
+                              <descriptor>src/assembly/standalone.xml</descriptor>
+                          </descriptors>
+                      </configuration>
+                  </plugin>
+              </plugins>
+          </build>
+      </profile>
+    </profiles>
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.qubole</groupId>
     <artifactId>streamx</artifactId>
     <packaging>jar</packaging>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>${VERSION}</version>
     <name>streamx</name>
     <organization>
         <name>Confluent, Inc.</name>
@@ -48,21 +93,6 @@
         <url>https://github.com/qubole/streamx</url>
         <tag>HEAD</tag>
     </scm>
-
-    <properties>
-        <confluent.version>3.1.2</confluent.version>
-        <kafka.version>0.10.1.1-cp1</kafka.version>
-        <junit.version>4.12</junit.version>
-        <hadoop.version>2.7.2</hadoop.version>
-        <hive.version>1.2.1</hive.version>
-        <avro.version>1.7.7</avro.version>
-        <parquet.version>1.7.0</parquet.version>
-        <commons-io.version>2.4</commons-io.version>
-        <joda.version>1.6.2</joda.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <confluent.maven.repo>http://packages.confluent.io/maven/</confluent.maven.repo>
-        <jackson.version>2.6.3</jackson.version>
-    </properties>
 
     <repositories>
         <repository>
@@ -295,22 +325,4 @@
             </resource>
         </resources>
     </build>
-
-    <profiles>
-        <profile>
-            <id>standalone</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/assembly/standalone.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
