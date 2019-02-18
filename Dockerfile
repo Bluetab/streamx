@@ -4,7 +4,6 @@ FROM maven:3.6-jdk-8-alpine AS build
 MAINTAINER True-Dat Dev Team
 
 ARG APP_VERSION
-
 ENV VERSION=${APP_VERSION}
 
 RUN mkdir /build

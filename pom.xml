@@ -19,7 +19,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <properties>
-      <VERSION>0.2.0-SNAPSHOT</VERSION>
+      <VERSION>1.0.1-SNAPSHOT</VERSION>
       <confluent.version>3.1.2</confluent.version>
       <kafka.version>0.10.1.1-cp1</kafka.version>
       <junit.version>4.12</junit.version>
