@@ -28,8 +28,6 @@ ADD config $STREAMX_DIR/config
 ADD docker/entry $STREAMX_DIR/entry
 ADD docker/utils.py $STREAMX_DIR/utils.py
 
-EXPOSE 8084
-
 ENV CLASSPATH=$CLASSPATH:$STREAMX_DIR/*
 
 RUN chmod 777 $STREAMX_DIR/entry && mkdir /tmp/streamx-logs
