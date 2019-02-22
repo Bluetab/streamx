@@ -26,7 +26,12 @@ import org.apache.kafka.connect.errors.ConnectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.DatatypeConverter;
+import java.security.MessageDigest;
+
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
@@ -60,7 +65,7 @@ public class DBWAL implements  WAL {
 
     try {
       String name = config.getString(S3SinkConnectorConfig.NAME_CONFIG);
-      tableName = name + "_" + topicPartition.topic() + "_" + partitionId;
+      tableName = tableNameFor(name ,topicPartition);
 
       String connectionURL = config.getString(S3SinkConnectorConfig.DB_CONNECTION_URL_CONFIG);
       String user = config.getString(S3SinkConnectorConfig.DB_USER_CONFIG);
@@ -84,6 +89,19 @@ public class DBWAL implements  WAL {
        log.error(e.toString());
        throw new ConnectException(e);
      }
+  }
+
+  private String tableNameFor(String connectorName, TopicPartition topicPartition)  {
+    String unHashed = (connectorName + "_" + topicPartition.topic() + "_" + partitionId);
+    MessageDigest messageDigest = null;
+    try {
+      messageDigest = MessageDigest.getInstance("MD5");
+    } catch (NoSuchAlgorithmException e) {
+      e.printStackTrace();
+    }
+    byte[] digest = messageDigest.digest();
+    String myHash = DatatypeConverter.printHexBinary(digest).toUpperCase();
+    return "_" + new String(myHash);
   }
 
   private void createIfNotExists(String tableName, String sql) throws SQLException {
