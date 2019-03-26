@@ -18,5 +18,16 @@
 				}
 			}
     }
-	}
+	},
+	"FormatConfigMappings": {
+		"M": {
+			"topic": {
+				"M": {
+					"name": { "S": "topics" },
+					"regex": { "S": ".*" }
+				}
+			}
+		}
+	},
+
 }
