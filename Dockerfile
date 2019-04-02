@@ -1,7 +1,7 @@
 # ---- Copy Files/Build ----
 FROM maven:3.6-jdk-8-alpine AS build
 
-MAINTAINER True-Dat Dev Team
+LABEL maintainer="True-Dat Dev Team"
 
 ARG APP_VERSION
 ENV VERSION=${APP_VERSION}
