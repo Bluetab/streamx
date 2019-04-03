@@ -1,5 +1,5 @@
 # ---- Copy Files/Build ----
-FROM maven:3.6-jdk-8-alpine AS build
+FROM maven:3.5.2-jdk-8-alpine AS build
 
 LABEL maintainer="True-Dat Dev Team"
 
@@ -17,8 +17,6 @@ RUN mvn -DskipTests package
 FROM confluentinc/cp-kafka:3.0.0
 
 ARG APP_VERSION
-
-RUN apt-get update && apt-get install -y vim
 
 ENV STREAMX_DIR /usr/local/streamx
 
