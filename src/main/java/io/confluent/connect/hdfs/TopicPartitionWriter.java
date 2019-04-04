@@ -60,7 +60,7 @@ public class TopicPartitionWriter {
   private Partitioner partitioner;
   private String url;
   private String topicsDir;
-  private Pattern topicDirnamePattern;
+  private Pattern topicDirPattern;
   private State state;
   private Queue<SinkRecord> buffer;
   private boolean recovered;
@@ -139,7 +139,7 @@ public class TopicPartitionWriter {
 
     rotateField = connectorConfig.getString(S3SinkConnectorConfig.ROTATE_FIELD_CONFIG);
     topicsDir = connectorConfig.getString(HdfsSinkConnectorConfig.TOPICS_DIR_CONFIG);
-    topicDirnamePattern = Pattern.compile(connectorConfig.getString(HdfsSinkConnectorConfig.TOPIC_DIRNAME_CONFIG));
+    topicDirPattern = Pattern.compile(connectorConfig.getString(HdfsSinkConnectorConfig.TOPIC_DIR_REGEXP_CONFIG));
     flushSize = connectorConfig.getInt(HdfsSinkConnectorConfig.FLUSH_SIZE_CONFIG);
     rotateIntervalMs = connectorConfig.getLong(HdfsSinkConnectorConfig.ROTATE_INTERVAL_MS_CONFIG);
     rotateScheduleIntervalMs = connectorConfig.getLong(HdfsSinkConnectorConfig.ROTATE_SCHEDULE_INTERVAL_MS_CONFIG);
@@ -204,8 +204,8 @@ public class TopicPartitionWriter {
   }
 
   public String getTopicDir(String topic) {
-    Matcher matcher = topicDirnamePattern.matcher(topic);
-    if (!matcher.matches() || matcher.groupCount() < 2) {
+    Matcher matcher = topicDirPattern.matcher(topic);
+    if (!matcher.matches() || matcher.groupCount() < 1) {
         return topic;
     }
     return matcher.group(1);
