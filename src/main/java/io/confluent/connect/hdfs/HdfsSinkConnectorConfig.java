@@ -56,6 +56,12 @@ public class HdfsSinkConnectorConfig extends AbstractConfig {
   public static final String TOPICS_DIR_DEFAULT = "topics";
   private static final String TOPICS_DIR_DISPLAY = "Topics directory";
 
+  public static final String TOPIC_DIR_REGEXP_CONFIG = "topic.dir.regexp";
+  private static final String TOPIC_DIR_REGEXP_DOC =
+          "Regexp to extract dirname from topic name to store the data ingested form Kafka.";
+  public static final String TOPIC_DIR_REGEXP_DEFAULT = "(^.*$)";
+  private static final String TOPIC_DIR_REGEXP_DISPLAY = "Topic dir regexp";
+
   public static final String LOGS_DIR_CONFIG = "logs.dir";
   private static final String LOGS_DIR_DOC =
       "Top level HDFS directory to store the write ahead logs.";
@@ -272,8 +278,9 @@ public class HdfsSinkConnectorConfig extends AbstractConfig {
         .define(HADOOP_CONF_DIR_CONFIG, Type.STRING, HADOOP_CONF_DIR_DEFAULT, Importance.HIGH, HADOOP_CONF_DIR_DOC, HDFS_GROUP, 2, Width.MEDIUM, HADOOP_CONF_DIR_DISPLAY)
         .define(HADOOP_HOME_CONFIG, Type.STRING, HADOOP_HOME_DEFAULT, Importance.HIGH, HADOOP_HOME_DOC, HDFS_GROUP, 3, Width.SHORT, HADOOP_HOME_DISPLAY)
         .define(TOPICS_DIR_CONFIG, Type.STRING, TOPICS_DIR_DEFAULT, Importance.HIGH, TOPICS_DIR_DOC, HDFS_GROUP, 4, Width.SHORT, TOPICS_DIR_DISPLAY)
-        .define(LOGS_DIR_CONFIG, Type.STRING, LOGS_DIR_DEFAULT, Importance.HIGH, LOGS_DIR_DOC, HDFS_GROUP, 5, Width.SHORT, LOGS_DIR_DISPLAY)
-        .define(FORMAT_CLASS_CONFIG, Type.STRING, FORMAT_CLASS_DEFAULT, Importance.HIGH, FORMAT_CLASS_DOC, HDFS_GROUP, 6, Width.SHORT, FORMAT_CLASS_DISPLAY);
+        .define(TOPIC_DIR_REGEXP_CONFIG, Type.STRING, TOPIC_DIR_REGEXP_DEFAULT, Importance.LOW, TOPIC_DIR_REGEXP_DOC, HDFS_GROUP, 5, Width.SHORT, TOPIC_DIR_REGEXP_DISPLAY)
+        .define(LOGS_DIR_CONFIG, Type.STRING, LOGS_DIR_DEFAULT, Importance.HIGH, LOGS_DIR_DOC, HDFS_GROUP, 6, Width.SHORT, LOGS_DIR_DISPLAY)
+        .define(FORMAT_CLASS_CONFIG, Type.STRING, FORMAT_CLASS_DEFAULT, Importance.HIGH, FORMAT_CLASS_DOC, HDFS_GROUP, 7, Width.SHORT, FORMAT_CLASS_DISPLAY);
 
     // Define Hive configuration group
     config.define(HIVE_INTEGRATION_CONFIG, Type.BOOLEAN, HIVE_INTEGRATION_DEFAULT, Importance.HIGH, HIVE_INTEGRATION_DOC, HIVE_GROUP, 1, Width.SHORT, HIVE_INTEGRATION_DISPLAY,

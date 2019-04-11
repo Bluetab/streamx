@@ -48,6 +48,8 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TopicPartitionWriter {
   private static final Logger log = LoggerFactory.getLogger(TopicPartitionWriter.class);
@@ -58,6 +60,7 @@ public class TopicPartitionWriter {
   private Partitioner partitioner;
   private String url;
   private String topicsDir;
+  private Pattern topicDirPattern;
   private State state;
   private Queue<SinkRecord> buffer;
   private boolean recovered;
@@ -136,6 +139,7 @@ public class TopicPartitionWriter {
 
     rotateField = connectorConfig.getString(S3SinkConnectorConfig.ROTATE_FIELD_CONFIG);
     topicsDir = connectorConfig.getString(HdfsSinkConnectorConfig.TOPICS_DIR_CONFIG);
+    topicDirPattern = Pattern.compile(connectorConfig.getString(HdfsSinkConnectorConfig.TOPIC_DIR_REGEXP_CONFIG));
     flushSize = connectorConfig.getInt(HdfsSinkConnectorConfig.FLUSH_SIZE_CONFIG);
     rotateIntervalMs = connectorConfig.getLong(HdfsSinkConnectorConfig.ROTATE_INTERVAL_MS_CONFIG);
     rotateScheduleIntervalMs = connectorConfig.getLong(HdfsSinkConnectorConfig.ROTATE_SCHEDULE_INTERVAL_MS_CONFIG);
@@ -199,7 +203,15 @@ public class TopicPartitionWriter {
     }
   }
 
-  @SuppressWarnings("fallthrough")
+  public String getTopicDir(String topic) {
+    Matcher matcher = topicDirPattern.matcher(topic);
+    if (!matcher.matches() || matcher.groupCount() < 1) {
+        return topic;
+    }
+    return matcher.group(1);
+  }
+
+    @SuppressWarnings("fallthrough")
   public boolean recover() {
     try {
       switch (state) {
@@ -268,9 +280,10 @@ public class TopicPartitionWriter {
 
             if (currentSchema == null) {
               if (compatibility != Compatibility.NONE && offset != -1) {
-                String topicDir = FileUtils.topicDirectory(url, topicsDir, tp.topic());
+                String topicDir = getTopicDir(tp.topic());
+                String path = FileUtils.topicDirectory(url, topicsDir, topicDir);
                 CommittedFileFilter filter = new TopicPartitionCommittedFileFilter(tp);
-                FileStatus fileStatusWithMaxOffset = FileUtils.fileStatusWithMaxOffset(storage, new Path(topicDir), filter);
+                FileStatus fileStatusWithMaxOffset = FileUtils.fileStatusWithMaxOffset(storage, new Path(path), filter);
                 if (fileStatusWithMaxOffset != null) {
                   currentSchema = schemaFileReader.getSchema(conf, fileStatusWithMaxOffset.getPath());
                 }
@@ -425,7 +438,8 @@ public class TopicPartitionWriter {
   }
 
   private String getDirectory(String encodedPartition) {
-    return partitioner.generatePartitionedPath(tp.topic(), encodedPartition);
+    String topicDir = getTopicDir(tp.topic());
+    return partitioner.generatePartitionedPath(topicDir, encodedPartition);
   }
 
   private void nextState() {
@@ -451,7 +465,8 @@ public class TopicPartitionWriter {
 
   private void readOffset() throws ConnectException {
     try {
-      String path = FileUtils.topicDirectory(url, topicsDir, tp.topic());
+      String topicDir = getTopicDir(tp.topic());
+      String path = FileUtils.topicDirectory(url, topicsDir, topicDir);
       CommittedFileFilter filter = new TopicPartitionCommittedFileFilter(tp);
       FileStatus fileStatusWithMaxOffset = FileUtils.fileStatusWithMaxOffset(storage, new Path(path), filter);
       if (fileStatusWithMaxOffset != null) {
