@@ -26,7 +26,8 @@ try {
         def desc = readFile("desc.txt").trim()
         env.VERSION = (tagCommitStatus == 0 && isTag(desc)) ? desc : env.VERSION + "-" + env.BUILD_ID + "-SNAPSHOT"
         def getLastTag = sh(script: "git describe --tags --abbrev=0 ${commit}", returnStdout: true)?.trim()
-        def repoDynamodb = env.AWS_ECS_REPOSITORY + ":" + getLastTag
+        def versionDynamodb = (params.ENVIRONMENT == 'dev') ? "latest" : getLastTag
+        def repoDynamodb = env.AWS_ECS_REPOSITORY + ":" + versionDynamodb
         sh "sed -i 's@__ECR_URL__@${repoDynamodb}@g' template.json"
       } catch (Exception e) {
         setResultPipeline("FAILURE", env.STAGE_NAME, e.toString())
