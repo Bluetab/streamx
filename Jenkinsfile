@@ -2,12 +2,10 @@
 
 setProjectProperties()
 
-env.AWS_CODECOMMIT_URL='ssh://git-codecommit.eu-west-1.amazonaws.com/v1/repos'
-env.AWS_ECR_URL = '090667427149.dkr.ecr.eu-west-1.amazonaws.com'
-env.AWS_ECS_REPOSITORY='utils/' + params.PROJECT + '-connect'
-env.AWS_CODECOMMIT_REPOSITORY='kafka-connect-' + params.PROJECT
+env.AWS_ECR_URL = "090667427149.dkr.ecr.eu-west-1.amazonaws.com"
+env.AWS_ECS_REPOSITORY = "kafka-connect/${params.PROJECT}"
 env.ACCOUNT_ID = getAccountID(params.ENVIRONMENT)
-env.VERSION="1.1.0"
+env.VERSION = "1.3.0"
 
 try {
   node {
@@ -20,7 +18,7 @@ try {
       println("Stage checkout")
 
       try {
-        git branch: 'master', url: env.AWS_CODECOMMIT_URL + '/' + env.AWS_CODECOMMIT_REPOSITORY
+        git branch: 'master', url:  "git@code.gniinnova.com:sofia/kakfa-connect/${params.PROJECT}.git"
         def commit = sh(script: 'git rev-parse HEAD', returnStdout: true)?.trim()
         def tagCommitStatus = sh(script: "git describe --tags ${commit} > desc.txt", returnStatus: true)
         def desc = readFile("desc.txt").trim()
