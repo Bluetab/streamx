@@ -18,7 +18,7 @@ try {
       println("Stage checkout")
 
       try {
-        git branch: 'master', url:  "git@code.gniinnova.com:sofia/kakfa-connect/${params.PROJECT}.git"
+        git branch: 'master', url: "git@code.gniinnova.com:sofia/kafka-connect/${params.PROJECT}.git"
         def commit = sh(script: 'git rev-parse HEAD', returnStdout: true)?.trim()
         def tagCommitStatus = sh(script: "git describe --tags ${commit} > desc.txt", returnStatus: true)
         def desc = readFile("desc.txt").trim()
