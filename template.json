@@ -38,6 +38,27 @@
 					},
 					"hadoop.conf.dir": {
 						"S": "/usr/local/streamx/config/hadoop-conf"
+					},
+					"topic.dir.regexp": {
+						"S": "XXX"
+					},
+					"rotate.interval.ms": {
+						"N": "1000"
+					},
+					"db.connection.url": {
+						"S": "XXX"
+					},
+					"db.password": {
+						"S": "XXX"
+					},
+					"db.user": {
+						"S": "XXX"
+					},
+					"partitioner.class": {
+						"S": "XXX"
+					},
+					"partitioner.list": {
+						"S": "XXX"
 					}
 				}
 			}
