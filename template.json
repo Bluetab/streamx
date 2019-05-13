@@ -55,10 +55,10 @@
 						"S": "XXX"
 					},
 					"partitioner.class": {
-						"S": "XXX"
+						"S": "io.confluent.connect.hdfs.partitioner.CORPartitioner"
 					},
 					"partitioner.list": {
-						"S": "XXX"
+						"S": "io.confluent.connect.hdfs.partitioner.SchemaPartitioner"
 					}
 				}
 			}
