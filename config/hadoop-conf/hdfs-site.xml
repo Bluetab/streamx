@@ -76,8 +76,8 @@
     <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
     <!--value>org.apache.hadoop.fs.s3native.NativeS3FileSystem</value-->
   </property>
-  <!-- KEYS KMS >
-  <property>
+  <!-- KEYS KMS this is not working -->
+  <!--property>
     <name>fs.s3a.server-side-encryption-algorithm</name>
     <value>SSE-KMS</value>
   </property>
