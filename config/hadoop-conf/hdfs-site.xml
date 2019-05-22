@@ -74,24 +74,5 @@
   <property>
     <name>fs.s3.impl</name>
     <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
-    <!--value>org.apache.hadoop.fs.s3native.NativeS3FileSystem</value-->
   </property>
-  <!-- KEYS KMS this is not working -->
-  <!--property>
-    <name>fs.s3a.server-side-encryption-algorithm</name>
-    <value>SSE-KMS</value>
-  </property>
-  <property>
-    <name>fs.s3a.server-side-encryption.key</name>
-    <value>arn:aws:kms:eu-west-1:475845716980:key/4d4384df-09cc-478e-befd-bd12d4b0dbaa</value>
-  </property-->
-  <!-- KEYS SSE -->
-  <!--property>
-    <name>fs.s3a.server-side-encryption-algorithm</name>
-    <value>AES256</value>
-  </property -->
-  <!-- property>
-    <name>fs.s3a.signing-algorithm</name>
-    <value>AWS4SignerType</value>
-  </property-->
 </configuration>

@@ -22,13 +22,13 @@
         <confluent.version>3.1.2</confluent.version>
         <kafka.version>0.10.1.1-cp1</kafka.version>
         <junit.version>4.12</junit.version>
-        <!-- hadoop.version>2.7.2</hadoop.version-->
-        <hadoop.version>2.9.2</hadoop.version>
+        <hadoop.version>2.7.2</hadoop.version>
         <hive.version>1.2.1</hive.version>
         <avro.version>1.7.7</avro.version>
         <parquet.version>1.7.0</parquet.version>
         <commons-io.version>2.4</commons-io.version>
         <joda.version>1.6.2</joda.version>
+        <aws.java.sdk.version>1.11.552</aws.java.sdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <confluent.maven.repo>http://packages.confluent.io/maven/</confluent.maven.repo>
         <jackson.version>2.6.3</jackson.version>
@@ -112,14 +112,8 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-bundle</artifactId>
-            <version>1.11.552</version>
+            <version>${aws.java.sdk.version}</version>
         </dependency>
-        <dependency>
-          <groupId>javax.ws.rs</groupId>
-          <artifactId>jsr311-api</artifactId>
-          <version>1.1.1</version>
-          <scope>provided</scope>
-       </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>connect-api</artifactId>
@@ -237,15 +231,10 @@
             <artifactId>c3p0</artifactId>
             <version>0.9.1.2</version>
         </dependency>
-        <!--dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.11.69</version>
-        </dependency-->
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.11.552</version>
+            <version>${aws.java.sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
