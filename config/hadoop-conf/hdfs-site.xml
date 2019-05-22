@@ -90,8 +90,8 @@
     <name>fs.s3a.server-side-encryption-algorithm</name>
     <value>AES256</value>
   </property -->
-  <property>
+  <!-- property>
     <name>fs.s3a.signing-algorithm</name>
     <value>AWS4SignerType</value>
-  </property>
+  </property-->
 </configuration>
