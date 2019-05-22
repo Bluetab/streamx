@@ -86,8 +86,12 @@
     <value>arn:aws:kms:eu-west-1:475845716980:key/4d4384df-09cc-478e-befd-bd12d4b0dbaa</value>
   </property-->
   <!-- KEYS SSE -->
-  <property>
+  <!--property>
     <name>fs.s3a.server-side-encryption-algorithm</name>
     <value>AES256</value>
+  </property -->
+  <property>
+    <name>fs.s3a.signing-algorithm</name>
+    <value>AWS4-HMAC-SHA256</value>
   </property>
 </configuration>
