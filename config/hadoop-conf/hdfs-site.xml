@@ -92,6 +92,6 @@
   </property -->
   <property>
     <name>fs.s3a.signing-algorithm</name>
-    <value>AWS4-HMAC-SHA256</value>
+    <value>AWS4SignerType</value>
   </property>
 </configuration>
