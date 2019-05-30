@@ -19,7 +19,7 @@ try {
 
       try {
         git branch: 'master', url: "git@code.gniinnova.com:sofia/kafka-connect/${params.PROJECT}.git"
-        def commit = sh(script: 'git rev-list --tags --max-count=1', returnStdout: true)?.trim()
+        def commit = sh(script: 'git rev-parse HEAD', returnStdout: true)?.trim()
         def tagCommitStatus = sh(script: "git describe --tags ${commit} > desc.txt", returnStatus: true)
         def desc = readFile("desc.txt").trim()
         env.VERSION = (tagCommitStatus == 0 && isTag(desc)) ? desc : env.VERSION + "-" + env.BUILD_ID + "-SNAPSHOT"
