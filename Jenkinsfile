@@ -5,7 +5,7 @@ setProjectProperties()
 env.AWS_ECR_URL = "090667427149.dkr.ecr.eu-west-1.amazonaws.com"
 env.AWS_ECS_REPOSITORY = "kafka-connect/${params.PROJECT}"
 env.ACCOUNT_ID = getAccountID(params.ENVIRONMENT)
-env.VERSION = "1.4.0"
+env.VERSION = "1.5.0"
 
 try {
   node {
